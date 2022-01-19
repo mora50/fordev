@@ -25,7 +25,7 @@ void main() {
         email: faker.internet.email(), secret: faker.internet.password());
   });
 
-  test('Shoudl call HttpCliente with correct URL', () async {
+  test('Should call HttpCliente with correct URL', () async {
     await sut.auth(params);
 
     verify(httpClient.request(
@@ -34,7 +34,7 @@ void main() {
         body: {'email': params.email, "password": params.secret}));
   });
 
-  test('Shoudl throw UnexpectedError if HttpClient returns 400', () async {
+  test('Should throw UnexpectedError if HttpClient returns 400', () async {
     when(httpClient.request(url: url, method: "post", body: anyNamed('body')))
         .thenThrow(HttpError.badRequest);
 
@@ -45,7 +45,7 @@ void main() {
 
     expect(future, throwsA(DomainError.unexpected));
   });
-  test('Shoudl throw UnexpectedError if HttpClient returns 404', () async {
+  test('Should throw UnexpectedError if HttpClient returns 404', () async {
     when(httpClient.request(url: url, method: "post", body: anyNamed('body')))
         .thenThrow(HttpError.notFound);
 
@@ -56,7 +56,7 @@ void main() {
 
     expect(future, throwsA(DomainError.unexpected));
   });
-  test('Shoudl throw UnexpectedError if HttpClient returns 500', () async {
+  test('Should throw UnexpectedError if HttpClient returns 500', () async {
     when(httpClient.request(url: url, method: "post", body: anyNamed('body')))
         .thenThrow(HttpError.serverError);
 
@@ -66,5 +66,17 @@ void main() {
     final future = sut.auth(params);
 
     expect(future, throwsA(DomainError.unexpected));
+  });
+  test('Should throw InvalidCredentialsError if HttpClient returns 401',
+      () async {
+    when(httpClient.request(url: url, method: "post", body: anyNamed('body')))
+        .thenThrow(HttpError.unauthorized);
+
+    final params = AuthenticationParams(
+        email: faker.internet.email(), secret: faker.internet.password());
+
+    final future = sut.auth(params);
+
+    expect(future, throwsA(DomainError.invalidCredentials));
   });
 }
