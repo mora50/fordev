@@ -13,6 +13,7 @@ void main() {
   late HttpClientSpy httpClient;
   late String url;
   late RemoteAuthentication sut;
+  late AuthenticationParams params;
 
   setUp(() {
     httpClient = HttpClientSpy();
@@ -20,12 +21,11 @@ void main() {
     /* Abbreviation of system under test
     It's a name to represent what class is passing through the test*/
     sut = RemoteAuthentication(httpClient: httpClient, url: url);
+    params = AuthenticationParams(
+        email: faker.internet.email(), secret: faker.internet.password());
   });
 
   test('Shoudl call HttpCliente with correct URL', () async {
-    final params = AuthenticationParams(
-        email: faker.internet.email(), secret: faker.internet.password());
-
     await sut.auth(params);
 
     verify(httpClient.request(
