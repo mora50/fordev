@@ -1,1 +1,1 @@
-enum DomainError { unexpected, sla }
+enum DomainError { unexpected }
