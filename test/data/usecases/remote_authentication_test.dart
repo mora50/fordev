@@ -45,9 +45,6 @@ void main() {
         method: any(named: 'method'),
         body: any(named: 'body'))).thenThrow(HttpError.badRequest);
 
-    final params = AuthenticationParams(
-        email: faker.internet.email(), secret: faker.internet.password());
-
     final future = sut.auth(params);
 
     expect(future, throwsA(DomainError.unexpected));
@@ -57,9 +54,6 @@ void main() {
         url: url,
         method: any(named: 'method'),
         body: any(named: 'body'))).thenThrow(HttpError.notFound);
-
-    final params = AuthenticationParams(
-        email: faker.internet.email(), secret: faker.internet.password());
 
     final future = sut.auth(params);
 
@@ -71,9 +65,6 @@ void main() {
         method: any(named: 'method'),
         body: any(named: 'body'))).thenThrow(HttpError.serverError);
 
-    final params = AuthenticationParams(
-        email: faker.internet.email(), secret: faker.internet.password());
-
     final future = sut.auth(params);
 
     expect(future, throwsA(DomainError.unexpected));
@@ -84,9 +75,6 @@ void main() {
         url: url,
         method: any(named: 'method'),
         body: any(named: 'body'))).thenThrow(HttpError.unauthorized);
-
-    final params = AuthenticationParams(
-        email: faker.internet.email(), secret: faker.internet.password());
 
     final future = sut.auth(params);
 
@@ -101,11 +89,21 @@ void main() {
             body: any(named: 'body'))).thenAnswer(
         (_) async => {'accessToken': accessToken, 'name': faker.person.name()});
 
-    final params = AuthenticationParams(
-        email: faker.internet.email(), secret: faker.internet.password());
-
     final account = await sut.auth(params);
 
     expect(account.token, accessToken);
+  });
+  test(
+      'Should throw UnexpectedError if HttpClient return 200 with invalid data',
+      () async {
+    when(() => httpClient.request(
+            url: any(named: "url"),
+            method: any(named: 'method'),
+            body: any(named: 'body')))
+        .thenAnswer((_) async => {'invalid_key': "invalid_value"});
+
+    final account = sut.auth(params);
+
+    expect(account, throwsA(DomainError.unexpected));
   });
 }
